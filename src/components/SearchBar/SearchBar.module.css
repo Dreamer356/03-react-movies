@@ -1,0 +1,6 @@
+.header{background:#fff;padding:12px 0;border-radius:8px;margin-bottom:16px}
+.container{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1100px;margin:0 auto;padding:0 12px}
+.link{font-size:14px;color:#0f1724;text-decoration:none}
+.form{display:flex;gap:8px;align-items:center}
+.input{padding:8px 12px;border-radius:8px;border:1px solid #e6e9ef;min-width:240px}
+.button{padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}

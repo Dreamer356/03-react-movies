@@ -1,0 +1,4 @@
+:root{--bg:#f5f7fb;--accent:#01a4e9;--muted:#6b7280}
+html,body,#root{height:100%}
+body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:#0f1724}
+.container{max-width:1100px;margin:0 auto;padding:24px}
