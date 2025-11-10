@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './MovieGrid.module.css'
+import styles from '../MovieGrid/MovieGrid'
 import { Movie } from '../../types/movie'
 import MovieCard from '../MovieCard/MovieCard'
 
