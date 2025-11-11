@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import type {Movie} from "../../types/movie";
+import type { Movie } from "../../types/movie";
 import styles from "./MovieModal.module.css";
 
 interface MovieModalProps {
@@ -8,10 +8,12 @@ interface MovieModalProps {
   onClose: () => void;
 }
 
-const modalRoot = document.getElementById("modal-root") as HTMLElement;
+const modalRoot = document.getElementById("modal-root");
 
 const MovieModal = ({ movie, onClose }: MovieModalProps) => {
   useEffect(() => {
+    if (!modalRoot) return;
+
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -28,6 +30,8 @@ const MovieModal = ({ movie, onClose }: MovieModalProps) => {
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  if (!modalRoot) return null;
 
   return createPortal(
     <div

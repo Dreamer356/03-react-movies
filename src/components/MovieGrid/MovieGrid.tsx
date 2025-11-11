@@ -1,4 +1,4 @@
-import type  {Movie}  from '../../types/movie';
+import type { Movie } from '../../types/movie';
 import styles from './MovieGrid.module.css';
 
 interface MovieGridProps {
@@ -6,7 +6,7 @@ interface MovieGridProps {
   onSelect: (movie: Movie) => void;
 }
 
- const MovieGrid = ({ movies, onSelect }: MovieGridProps) => {
+const MovieGrid = ({ movies, onSelect }: MovieGridProps) => {
   if (movies.length === 0) return null;
 
   return (
@@ -28,4 +28,4 @@ interface MovieGridProps {
   );
 };
 
-export default MovieGrid
+export default React.memo(MovieGrid);

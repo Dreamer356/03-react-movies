@@ -4,12 +4,15 @@ import type { Movie } from "../types/movie";
 const API_URL = "https://api.themoviedb.org/3/search/movie";
 const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
-
 interface TMDBResponse {
   results: Movie[];
 }
 
 export async function fetchMovies(query: string): Promise<Movie[]> {
+  if (!TOKEN) {
+    throw new Error("TMDB API token is not defined");
+  }
+
   const config = {
     params: {
       query,
@@ -22,9 +25,11 @@ export async function fetchMovies(query: string): Promise<Movie[]> {
     },
   };
 
- 
-  const response = await axios.get<TMDBResponse>(API_URL, config);
-
-  return response.data.results;
+  try {
+    const response = await axios.get<TMDBResponse>(API_URL, config);
+    return response.data.results;
+  } catch (error) {
+    console.error("Failed to fetch movies:", error);
+    throw error;
+  }
 }
-

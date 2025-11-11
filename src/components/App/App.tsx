@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import SearchBar from "../SearchBar/SearchBar";
 import MovieGrid from "../MovieGrid/MovieGrid";
@@ -15,7 +15,7 @@ const App = () => {
   const [isError, setIsError] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleSearch = async (query: string): Promise<void> => {
+  const handleSearch = useCallback(async (query: string): Promise<void> => {
     setMovies([]);
     setIsError(false);
     setIsLoading(true);
@@ -24,24 +24,25 @@ const App = () => {
       const data = await fetchMovies(query);
       if (!data.length) {
         toast.error("No movies found for your request.");
-        return;
+        setMovies([]);
+      } else {
+        setMovies(data);
       }
-      setMovies(data);
     } catch {
       setIsError(true);
       toast.error("Failed to fetch movies.");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleSelect = (movie: Movie): void => {
+  const handleSelect = useCallback((movie: Movie): void => {
     setSelectedMovie(movie);
-  };
+  }, []);
 
-  const handleCloseModal = (): void => {
+  const handleCloseModal = useCallback((): void => {
     setSelectedMovie(null);
-  };
+  }, []);
 
   return (
     <div className={styles.app}>
@@ -52,7 +53,6 @@ const App = () => {
         {!isLoading && !isError && movies.length > 0 && (
           <MovieGrid movies={movies} onSelect={handleSelect} />
         )}
-
         {selectedMovie && (
           <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
         )}
