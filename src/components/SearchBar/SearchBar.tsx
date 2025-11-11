@@ -1,51 +1,52 @@
-import React, { useState } from 'react'
-import styles from '../SearchBar/SearchBar'
-import toast from 'react-hot-toast'
+
+import toast from "react-hot-toast";
+import style from "./SearchBar.module.css";
 
 interface SearchBarProps {
-  onSubmit: (query: string) => void
+  onSubmit: (query: string) => void;
 }
 
-export default function SearchBar({ onSubmit }: SearchBarProps) {
-  const [value, setValue] = useState('')
+const SearchBar = ({ onSubmit }: SearchBarProps) => {
+  const handleFormAction = (formData: FormData) => {
+    const query = (formData.get("query") as string).trim();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const trimmed = value.trim()
-    if (!trimmed) {
-      toast.error('Please enter your search query.')
-      return
+    if (!query) {
+      toast.error("Please enter your search query.");
+      return;
     }
-    onSubmit(trimmed)
-  }
+
+    onSubmit(query);
+  };
 
   return (
-    <header className={styles.header}>
-      <div className={styles.container}>
+    <header className={style.header}>
+      <div className={style.container}>
         <a
-          className={styles.link}
+          className={style.link}
           href="https://www.themoviedb.org/"
           target="_blank"
           rel="noopener noreferrer"
         >
           Powered by TMDB
         </a>
-        <form className={styles.form} onSubmit={handleSubmit}>
+
+        <form className={style.form} action={handleFormAction}>
           <input
-            className={styles.input}
+            className={style.input}
             type="text"
             name="query"
+            aria-label="Search movies"
             autoComplete="off"
             placeholder="Search movies..."
             autoFocus
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
           />
-          <button className={styles.button} type="submit">
+          <button className={style.button} type="submit">
             Search
           </button>
         </form>
       </div>
     </header>
-  )
-}
+  );
+};
+
+export default SearchBar;

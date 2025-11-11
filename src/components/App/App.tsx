@@ -1,56 +1,65 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import styles from './App.module.css'
-import SearchBar from '../SearchBar/SearchBar'
-import MovieGrid from '../MovieGrid/MovieGrid'
-import Loader from '../Loader/Loader'
-import ErrorMessage from '../ErrorMessage/ErrorMessage'
-import MovieModal from '../MovieModal/MovieModal'
-import { fetchMovies } from '../../services/movieService'
-import toast, { Toaster } from 'react-hot-toast'
-import { Movie } from '../../types/movie'
+import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import SearchBar from "../SearchBar/SearchBar";
+import MovieGrid from "../MovieGrid/MovieGrid";
+import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import MovieModal from "../MovieModal/MovieModal";
+import { fetchMovies } from "../../services/movieService";
+import type { Movie } from "../../types/movie";
+import styles from "./App.module.css";
 
-export default function App() {
-  const [movies, setMovies] = useState<Movie[]>([])
-  const [query, setQuery] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [selected, setSelected] = useState<Movie | null>(null)
+const App = () => {
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleSearch = useCallback(async (q: string) => {
-    setQuery(q)
-    setMovies([]) // clear previous results
-    setError(null)
-    setLoading(true)
+  const handleSearch = async (query: string): Promise<void> => {
+    setMovies([]);
+    setIsError(false);
+    setIsLoading(true);
+
     try {
-      const data = await fetchMovies(q)
-      if (!data.results || data.results.length === 0) {
-        toast('No movies found for your request.')
-        setMovies([])
-      } else {
-        setMovies(data.results)
+      const data = await fetchMovies(query);
+      if (!data.length) {
+        toast.error("No movies found for your request.");
+        return;
       }
-    } catch (err) {
-      setError('Error fetching movies')
-      toast.error('There was an error fetching movies.')
+      setMovies(data);
+    } catch {
+      setIsError(true);
+      toast.error("Failed to fetch movies.");
     } finally {
-      setLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  };
 
-  useEffect(() => {
-    // optional: could load trending on mount. Keep empty.
-  }, [])
+  const handleSelect = (movie: Movie): void => {
+    setSelectedMovie(movie);
+  };
+
+  const handleCloseModal = (): void => {
+    setSelectedMovie(null);
+  };
 
   return (
-    <div>
-      <Toaster />
-      <div className="container">
-        <SearchBar onSubmit={handleSearch} />
-        {loading && <Loader />}
-        {error && <ErrorMessage />}
-        <MovieGrid movies={movies} onSelect={(m) => setSelected(m)} />
-        <MovieModal movie={selected} onClose={() => setSelected(null)} />
-      </div>
+    <div className={styles.app}>
+      <SearchBar onSubmit={handleSearch} />
+      <main>
+        {isLoading && <Loader />}
+        {isError && !isLoading && <ErrorMessage />}
+        {!isLoading && !isError && movies.length > 0 && (
+          <MovieGrid movies={movies} onSelect={handleSelect} />
+        )}
+
+        {selectedMovie && (
+          <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
+        )}
+      </main>
+      <Toaster position="top-center" />
     </div>
-  )
-}
+  );
+};
+
+export default App;

@@ -1,42 +1,30 @@
-import axios, { AxiosResponse } from 'axios'
-import { Movie } from '../types/movie'
+import axios from "axios";
+import type { Movie } from "../types/movie";
 
-const BASE_URL = 'https://api.themoviedb.org/3'
-const IMAGE_BASE = 'https://image.tmdb.org/t/p'
+const API_URL = "https://api.themoviedb.org/3/search/movie";
+const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
 
-const token = import.meta.env.VITE_TMDB_TOKEN
 
-if (!token) {
-  // It's okay in dev to not crash; App will handle missing token, but we warn.
-  // eslint-disable-next-line no-console
-  console.warn('VITE_TMDB_TOKEN is not set. Requests will fail.')
+interface TMDBResponse {
+  results: Movie[];
 }
 
-export interface FetchMoviesResponse {
-  page: number
-  results: Movie[]
-  total_pages: number
-  total_results: number
-}
-
-export async function fetchMovies(query: string): Promise<FetchMoviesResponse> {
-  const url = `${BASE_URL}/search/movie`
+export async function fetchMovies(query: string): Promise<Movie[]> {
   const config = {
     params: {
       query,
+      page: 1,
       include_adult: false,
-      language: 'en-US',
-      page: 1
+      language: "en-US",
     },
     headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }
-  const resp: AxiosResponse<FetchMoviesResponse> = await axios.get(url, config)
-  return resp.data
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  };
+
+ 
+  const response = await axios.get<TMDBResponse>(API_URL, config);
+
+  return response.data.results;
 }
 
-export function getPosterUrl(path: string | null, size = 'w500') {
-  if (!path) return ''
-  return `${IMAGE_BASE}/${size}${path}`
-}
