@@ -8,46 +8,48 @@ import MovieModal from "../MovieModal/MovieModal";
 import { fetchMovies } from "../../services/movieService";
 import type { Movie } from "../../types/movie";
 import styles from "./App.module.css";
+import { useQuery } from "@tanstack/react-query";
 
 const App = () => {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [query, setQuery] = useState<string>("");
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleSearch = useCallback(async (query: string): Promise<void> => {
-    setMovies([]);
-    setIsError(false);
-    setIsLoading(true);
-
-    try {
-      const data = await fetchMovies(query);
-      if (!data.length) {
-        toast.error("No movies found for your request.");
-        setMovies([]);
-      } else {
-        setMovies(data);
-      }
-    } catch {
-      setIsError(true);
-      toast.error("Failed to fetch movies.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleSelect = useCallback((movie: Movie): void => {
+  const handleSelect = useCallback((movie: Movie) => {
     setSelectedMovie(movie);
   }, []);
 
-  const handleCloseModal = useCallback((): void => {
+  const handleCloseModal = useCallback(() => {
     setSelectedMovie(null);
   }, []);
 
+  const handleSearch = useCallback((q: string) => {
+    setQuery(q);
+  }, []);
+
+  const {
+    data: movies = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["movies", query],
+    queryFn: () => fetchMovies(query),
+    enabled: query.trim().length > 0,
+    keepPreviousData: true,
+    onError: (err: any) => {
+      toast.error("Failed to fetch movies");
+      console.error(err);
+    },
+  });
+
   return (
     <div className={styles.app}>
-      <SearchBar onSubmit={handleSearch} />
-      <main>
+      <header className={styles.header}>
+        <h1>Movie search</h1>
+      </header>
+      <main className={styles.main}>
+        <SearchBar onSubmit={handleSearch} />
         {isLoading && <Loader />}
         {isError && !isLoading && <ErrorMessage />}
         {!isLoading && !isError && movies.length > 0 && (
